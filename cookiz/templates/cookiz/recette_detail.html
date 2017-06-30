@@ -1,0 +1,122 @@
+{% extends 'cookiz/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="thumbnail">
+        {% if recette.photo1 %}
+            <img src="..{{ MEDIA_ROOT }}{{ recette.photo1.url }}" width="300" height="300">
+        {% else %}
+            <img src="{% static 'cookiz/image/not-found.png' %}" width="300" height="300">
+        {% endif %}
+        <div class="caption-full">
+            <h4 class="pull-right">
+                {% for i in "123" %}
+                    {% if i <= recette.difficulte %}
+                        <i class="fa fa-cutlery" aria-hidden="true"></i>
+                    {% else %}
+                        <i style="color:LightGrey" class="fa fa-cutlery" aria-hidden="true"></i>
+                    {% endif %}
+                {% endfor %}
+
+            </h4>
+            <h4>{{ recette.titre }} - {{ recette.date_creation }} par {{ recette.user }}
+                {% if recette.publier == False %}-
+                    Recette hors ligne
+                {% endif %}<br/>
+            </h4>
+            <br/>
+            <span style="color:grey;font-size:16px">{{ recette.get_type_display }} -  {% for i in "123" %}
+                {% if i <= recette.cout %}
+                    <i class="fa fa-eur" aria-hidden="true"></i>
+                {% else %}
+                    <i style="color:LightGrey" class="fa fa-eur" aria-hidden="true"></i>
+                {% endif %}
+            {% endfor %}</span><br/>
+
+            <h4>Ingrédients : </h4>
+            <p>{{ recette.ingredients }}</p>
+            <h4>Préparations : </h4>
+            <p>{{ recette.etapes_preparations }}</p>
+
+        </div>
+        <div class="ratings">
+            <p class="pull-right">
+                <i class="fa fa-clock-o" aria-hidden="true"></i>
+                <span>{{ recette.temps_preparation }}</span></br>
+                <i class="fa fa-fire" aria-hidden="true"></i>
+                <span>{{ recette.temps_cuisson }}</span></br>
+                <i class="fa fa-bed" aria-hidden="true"></i>
+                <span>{{ recette.temps_repos }}</span>
+            </p>
+            <p>
+                {% if recette.note_moyenne is not None %}
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <span style="color:grey;font-size:13px"> {{ recette.note_moyenne }}/10 </span>
+                {% else %}
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                    <span style="color:grey;font-size:13px"> Non noté </span>
+                {% endif %}
+            </p>
+        </div>
+
+
+        {% if user.pk == recette.user.pk %}
+            <a class="btn btn-default"
+               href="{% url 'recette_edit' recette_slug=recette.slug %}?recette_slug={{ recette.slug }}">Éditer <span
+                    class="glyphicon glyphicon-pencil"></span></a>
+
+            {% if recette.publier %}
+                <a class="btn btn-danger" href="{% url 'recette_delete' recette_slug=recette.slug %}">Supprimer
+                    <span class="glyphicon glyphicon-cross"></span></a>
+            {% else %}
+                <a class="btn btn-primary"
+                   href="{% url 'recette_publier' recette_slug=recette.slug %}?recette_slug={{ recette.slug }}">Publier</a>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="well">
+
+
+        {% for commentaire in liste_commentaire %}
+            <div class="row">
+                <div class="col-md-12">
+                    <b>{{ commentaire.user }}</b>
+                    <span class="pull-right">{{ commentaire.date_creation }}</span>
+                    <p>{{ commentaire.message }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+        {% if current_user_recette %}
+        {% elif not deja_vote %}
+            <h3>Ajouter une note</h3>
+            <form method="POST" class="note-form">{% csrf_token %}
+                {{ form_note.as_ul }}
+                <button type="submit">Save</button>
+            </form>
+        {% else %}
+            <form method="POST" class="note-form-update">{% csrf_token %}
+                {{ form_note.as_ul }}
+                <button type="submit" class="btn btn-success">Notez !</button>
+            </form>
+            <p>Vous avez déjà votez ! </p>
+            <button type="button" class="update_vote btn btn-info" onclick="showUpdateGradeForm()">Modifier mon
+                vote
+            </button>
+        {% endif %}
+        </div>
+
+        <h3>Ajouter un commentaire </h3>
+        <div class="contenu_detail">
+        <form method="POST" class="commentaire-form">{% csrf_token %}
+            {{ form_commentaire.as_ul }}
+            <button type="submit" class="btn btn-primary">Commenter</button>
+        </form>
+    {% else %}
+        <p>Merci de vous connecter pour commenter ou noter cette recette !</p>
+    {% endif %}
+</div>
+{% endblock %}

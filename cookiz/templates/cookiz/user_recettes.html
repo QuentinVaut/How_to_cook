@@ -1,0 +1,82 @@
+{% extends 'cookiz/base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <h3>Toutes mes recettes</h3>
+    {% if recettes %}
+        {% for recette in recettes %}
+            <div class="thumbnail">
+                {% if recette.photo1 %}
+                    <img src="..{{ MEDIA_ROOT }}{{ recette.photo1.url }}" width="300" height="300">
+                {% else %}
+                    <img src="{% static 'cookiz/image/not-found.png' %}" width="300" height="300">
+                {% endif %}
+                <div class="caption-full">
+                    <h4 class="pull-right">
+                        {% for i in "123" %}
+                            {% if i <= recette.difficulte %}
+                                <i class="fa fa-cutlery" aria-hidden="true"></i>
+                            {% else %}
+                                <i style="color:LightGrey" class="fa fa-cutlery" aria-hidden="true"></i>
+                            {% endif %}
+                        {% endfor %}
+
+                    </h4>
+                    <h4><a href="{% url 'recette_detail' recette.slug %}">{{ recette.titre }}</a>
+                        {% if recette.is_new %}
+                            <span style="color:green;font-size:13px"> -  Nouvelle recette </span>
+                        {% elif recette.was_edited %}
+                            <span style="color:green;font-size:13px"> -  Modifiée récemment </span>
+                        {% endif %}
+                    </h4>
+                    <br/>
+                          <span style="color:grey;font-size:16px">{{ recette.get_type_display }} -  {% for i in "123" %}
+                              {% if i <= recette.cout %}
+                                  <i class="fa fa-eur" aria-hidden="true"></i>
+                              {% else %}
+                                  <i style="color:LightGrey" class="fa fa-eur" aria-hidden="true"></i>
+                              {% endif %}
+                          {% endfor %}</span><br/>
+                </div>
+                <div class="ratings">
+
+                    <p>
+                        {% if recette.note_moyenne is not None %}
+                            <i class="fa fa-star" aria-hidden="true"></i>
+                            <span style="color:grey;font-size:13px"> {{ recette.note_moyenne }}/10 </span>
+                        {% else %}
+                            <i class="fa fa-star" aria-hidden="true"></i>
+                            <span style="color:grey;font-size:13px"> Non noté </span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div id="contenu-p">
+            <p>Aucune recette.</p>
+        </div>
+    {% endif %}
+
+    <div id="pagination_div">
+        {% if is_paginated %}
+            <ul class="pagination pagination-centered pagination-center">
+                {% if page_obj.has_previous %}
+                    <li><a href="?page=1"><<</a></li>
+                    <li><a href="?page={{ page_obj.previous_page_number }}"><</a></li>
+                {% endif %}
+
+                {% for i in paginator.page_range %}
+                    <li {% if page_obj.number == i %} class="active" {% endif %}><a href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li><a href="?page={{ page_obj.next_page_number }}">></a></li>
+                    <li><a href="?page={{ page_obj.paginator.num_pages }}">>></a></li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

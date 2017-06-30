@@ -1,0 +1,52 @@
+{% extends 'cookiz/base.html' %}
+{% load static %}
+
+{% block content %}
+    <h3>Edition d'une recette</h3>
+
+    <form class="form-horizontal" id="edit_recette" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.errors %}
+                <div class="form-group has-error">
+                    <label class="col-sm-2 control-label" for="id_{{ field.name }}">{{ field.label }}
+                        {% if field.field.required %}
+                            *{% endif %}</label>
+                    <div class="col-sm-10">
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="help-block">
+                                <small>{{ field.help_text }}</small>
+                            </p>
+                        {% endif %}
+                        <span class="help-block">
+                                        {% for error in  field.errors %}{{ error }}{% endfor %}
+                                    </span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="id_{{ field.name }}">{{ field.label }}
+                        {% if field.field.required %}
+                            *{% endif %}</label>
+                    <div class="col-sm-10">
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="help-block">
+                                <small>{{ field.help_text }}</small>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <a class="btn btn-danger" href="{% url 'recette_detail' request.GET.recette_slug %}">Annuler</a>
+                <button type="submit" class="btn btn-primary">Valider les modifications</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
